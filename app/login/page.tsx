@@ -43,7 +43,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">Đăng nhập</h2>
-          <p className="mt-2 text-gray-600">Chào mừng bạn quay trở lại BookStore</p>
+          <p className="mt-2 text-gray-600">Chào mừng bạn quay trở lại KT.BookStore</p>
         </div>
 
         <Card className="shadow-lg">
@@ -149,12 +149,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Demo credentials */}
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-xs text-blue-800 font-medium mb-1">Tài khoản demo:</p>
-              <p className="text-xs text-blue-700">Email: admin@bookstore.vn</p>
-              <p className="text-xs text-blue-700">Mật khẩu: admin123</p>
-            </div>
+           
           </CardContent>
         </Card>
       </div>

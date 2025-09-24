@@ -34,7 +34,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (items.length === 0) {
-      message.error("Giỏ hàng của bạn đang trống!")
+      // message.error("Giỏ hàng của bạn đang trống!")
       router.push("/cart")
     }
   }, [items, router])

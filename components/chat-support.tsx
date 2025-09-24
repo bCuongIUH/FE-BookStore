@@ -74,7 +74,7 @@ export default function ChatSupport() {
       return "Bộ sách Harry Potter có 7 tập. Bạn có thể mua cả bộ để tiết kiệm hoặc mua từng cuốn riêng lẻ theo nhu cầu."
     }
 
-    return "Cảm ơn bạn đã liên hệ! Để được hỗ trợ tốt nhất, bạn có thể gọi hotline: 1900-1234 hoặc email: support@bookstore.com"
+    return "Cảm ơn bạn đã liên hệ! Để được hỗ trợ tốt nhất, bạn có thể gọi hotline: 0123456789 hoặc email: baokhanh12@gmail.com"
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

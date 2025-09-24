@@ -28,7 +28,7 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
     }
 
     addToCart(product, 1)
-    message.success(`Đã thêm "${product.title}" vào giỏ hàng!`)
+    // message.success(`Đã thêm "${product.title}" vào giỏ hàng!`)
 
     // Keep the old callback for backward compatibility
     onAddToCart?.(product)

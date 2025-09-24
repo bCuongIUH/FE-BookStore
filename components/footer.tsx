@@ -12,7 +12,7 @@ export default function Footer() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">B</span>
               </div>
-              <span className="text-xl font-bold">BookStore</span>
+              <span className="text-xl font-bold">KT.BookStore</span>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
               Cửa hàng sách trực tuyến hàng đầu Việt Nam, cung cấp hàng ngàn đầu sách chất lượng với giá cả hợp lý.
@@ -102,15 +102,15 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <MapPin className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                <span className="text-gray-300 text-sm">123 Đường ABC, Quận 1, TP.HCM</span>
+                <span className="text-gray-300 text-sm">04 Nguyễn Văn Bảo, P1, Gò Vấp</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                <span className="text-gray-300 text-sm">(028) 1234 5678</span>
+                <span className="text-gray-300 text-sm">(076) 1234 5678</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                <span className="text-gray-300 text-sm">info@bookstore.vn</span>
+                <span className="text-gray-300 text-sm">baokhanh@gmail.com</span>
               </div>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">© 2024 BookStore. Tất cả quyền được bảo lưu.</p>
+            <p className="text-gray-400 text-sm">© 2025 KT.BookStore. Tất cả quyền được bảo lưu.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
                 Chính sách bảo mật
