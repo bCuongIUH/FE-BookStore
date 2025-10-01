@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import { loginUser } from "@/utils/authApi"
 
 interface User {
   id: string
@@ -13,7 +14,6 @@ interface User {
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<{ success: boolean; message: string }>
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; message: string }>
   logout: () => void
   isLoading: boolean
 }
@@ -25,7 +25,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
     const savedUser = localStorage.getItem("bookstore_user")
     if (savedUser) {
       try {
@@ -40,63 +39,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const result = await loginUser(email, password)
 
-    // Mock authentication - in real app, this would be an API call
-    const mockUsers = [
-      { id: "1", email: "admin@bookstore.vn", password: "admin123", name: "Admin User" },
-      { id: "2", email: "user@example.com", password: "user123", name: "John Doe" },
-    ]
-
-    const foundUser = mockUsers.find((u) => u.email === email && u.password === password)
-
-    if (foundUser) {
-      const userData = { id: foundUser.id, email: foundUser.email, name: foundUser.name }
-      setUser(userData)
-      localStorage.setItem("bookstore_user", JSON.stringify(userData))
+      if (result.success && result.user) {
+        const userData = {
+          id: result.user.id,
+          email: result.user.email,
+          name: result.user.name,
+          avatar: result.user.avatar,
+        }
+        setUser(userData)
+        localStorage.setItem("bookstore_user", JSON.stringify(userData))
+        setIsLoading(false)
+        return { success: true, message: "Đăng nhập thành công!" }
+      } else {
+        setIsLoading(false)
+        return { success: false, message: "Đăng nhập thất bại!" }
+      }
+    } catch (error) {
       setIsLoading(false)
-      return { success: true, message: "Đăng nhập thành công!" }
-    } else {
-      setIsLoading(false)
-      return { success: false, message: "Email hoặc mật khẩu không đúng!" }
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : "Email hoặc mật khẩu không đúng!",
+      }
     }
-  }
-
-  const register = async (
-    name: string,
-    email: string,
-    password: string,
-  ): Promise<{ success: boolean; message: string }> => {
-    setIsLoading(true)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock registration - in real app, this would be an API call
-    const existingUsers = JSON.parse(localStorage.getItem("bookstore_registered_users") || "[]")
-
-    if (existingUsers.find((u: any) => u.email === email)) {
-      setIsLoading(false)
-      return { success: false, message: "Email đã được sử dụng!" }
-    }
-
-    const newUser = { id: Date.now().toString(), email, name }
-    existingUsers.push({ ...newUser, password })
-    localStorage.setItem("bookstore_registered_users", JSON.stringify(existingUsers))
-
-    setUser(newUser)
-    localStorage.setItem("bookstore_user", JSON.stringify(newUser))
-    setIsLoading(false)
-    return { success: true, message: "Đăng ký thành công!" }
   }
 
   const logout = () => {
     setUser(null)
     localStorage.removeItem("bookstore_user")
+    localStorage.removeItem("bookstore_token")
   }
 
-  return <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

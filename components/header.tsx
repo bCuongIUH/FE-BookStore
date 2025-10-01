@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/auth-context"
-// Import useCart hook to display cart items count
+
 import { useCart } from "@/contexts/cart-context"
+
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -27,7 +28,9 @@ export default function Header() {
     logout()
     setIsMenuOpen(false)
   }
-
+console.log('====================================');
+console.log(user);
+console.log('====================================');
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
