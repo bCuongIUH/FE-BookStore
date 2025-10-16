@@ -1,4 +1,3 @@
-
 import axios from "axios"
 
 const API_URL = "http://localhost:5000/api" // ⚙️ chỉnh port nếu BE khác
@@ -36,30 +35,60 @@ export const loginUser = async (email, password) => {
     throw new Error(error.response?.data?.error || "Đăng nhập thất bại.")
   }
 }
+
 // ===============================
-// 🔹 REGISTER
+// 🔹 SEND OTP → đăng ký tạm
 // ===============================
-export const registerUser = async (fullName, email, phone, password, confirmPassword, role = "customer") => {
+export const sendOtpForRegistration = async (fullName, email, phone, password, confirmPassword) => {
   try {
-    const response = await axios.post(`${API_URL}/customer/register`, {
+    const response = await axios.post(`${API_URL}/customer/send-otp`, {
       fullName,
       email,
       phone,
       password,
       confirmPassword,
-      role
     })
 
+    return {
+      success: response.data.success,
+      message: response.data.message,
+    }
+  } catch (error) {
+    console.error("Send OTP error:", error.response || error)
+    return {
+      success: false,
+      message: error.response?.data?.error || "Gửi OTP thất bại.",
+    }
+  }
+}
+
+// ===============================
+// 🔹 VERIFY OTP → hoàn tất đăng ký
+// ===============================
+export const verifyOtpAndRegister = async (email, otp) => {
+  try {
+    const response = await axios.post(`${API_URL}/customer/verify-otp`, { email, otp })
+
     if (response.data.success) {
-      return { success: true, message: response.data.message }
+      const { token, user } = response.data
+      localStorage.setItem("token", token)
+      localStorage.setItem("userRole", user.role)
+      localStorage.setItem("userName", user.name)
+      localStorage.setItem("userEmail", user.email)
+      localStorage.setItem("userId", user.id)
+      localStorage.setItem("isAuthenticated", "true")
+
+      setAuthToken(token)
+
+      return { success: true, token, user }
     } else {
       return { success: false, message: response.data.message }
     }
   } catch (error) {
-    console.error("Register error:", error.response || error)
+    console.error("Verify OTP error:", error.response || error)
     return {
       success: false,
-      message: error.response?.data?.message || "Đăng ký thất bại."
+      message: error.response?.data?.error || "Xác thực OTP thất bại.",
     }
   }
 }
@@ -102,4 +131,11 @@ export const isEmployee = () => localStorage.getItem("userRole") === "employee"
 export const setAuthToken = (token) => {
   if (token) axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
   else delete axios.defaults.headers.common["Authorization"]
+}
+
+// ===============================
+// 🔹 REGISTER (cũ, không dùng nữa nếu dùng OTP)
+// ===============================
+export const registerUser = async (fullName, email, phone, password, confirmPassword, role = "customer") => {
+  return sendOtpForRegistration(fullName, email, phone, password, confirmPassword)
 }
