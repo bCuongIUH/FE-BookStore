@@ -4,17 +4,63 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { ShoppingCart, ArrowLeft, Truck, CreditCard } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { ShoppingCart, ArrowLeft, Truck, CreditCard, MapPin, Plus, Trash2, Check, X } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import CartItemComponent from "@/components/cart-item"
 import { message } from "antd"
+import { useState } from "react"
 
 export default function CartPage() {
-  const { items, clearCart, getTotalItems, getTotalPrice, getShippingFee, getTax, getFinalTotal } = useCart()
+  const {
+    items,
+    clearCart,
+    getTotalItems,
+    getTotalPrice,
+    getShippingFee,
+    getTax,
+    getFinalTotal,
+    deliveryAddresses,
+    selectedAddressId,
+    saveDeliveryAddress,
+    selectAddress,
+    deleteAddress,
+    getSelectedAddress,
+  } = useCart()
+
+  const [showAddressForm, setShowAddressForm] = useState(false)
+  const [address, setAddress] = useState({
+    street: "",
+    ward: "",
+    district: "",
+    city: "",
+  })
 
   const handleClearCart = () => {
     clearCart()
     message.success("Đã xóa tất cả sản phẩm khỏi giỏ hàng!")
+  }
+
+  const handleSaveAddress = () => {
+    if (!address.street || !address.ward || !address.district || !address.city) {
+      message.error("Vui lòng điền đầy đủ thông tin địa chỉ!")
+      return
+    }
+    saveDeliveryAddress(address)
+    message.success("Đã lưu địa chỉ giao hàng!")
+    setAddress({ street: "", ward: "", district: "", city: "" })
+    setShowAddressForm(false)
+  }
+
+  const handleSelectAddress = (addressId: string) => {
+    selectAddress(addressId)
+    message.success("Đã chọn địa chỉ giao hàng!")
+  }
+
+  const handleDeleteAddress = (addressId: string) => {
+    deleteAddress(addressId)
+    message.success("Đã xóa địa chỉ!")
   }
 
   const handleCheckout = () => {
@@ -22,7 +68,10 @@ export default function CartPage() {
       message.error("Giỏ hàng của bạn đang trống!")
       return
     }
-    // Navigate to checkout page
+    if (!getSelectedAddress()) {
+      message.error("Vui lòng chọn địa chỉ giao hàng!")
+      return
+    }
     window.location.href = "/checkout"
   }
 
@@ -56,6 +105,156 @@ export default function CartPage() {
           Xóa tất cả
         </Button>
       </div>
+
+      <Card className="mb-8">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center space-x-2">
+              <MapPin className="w-5 h-5" />
+              <span>Địa chỉ nhận hàng</span>
+            </CardTitle>
+            {!showAddressForm && (
+              <Button variant="outline" size="sm" onClick={() => setShowAddressForm(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Thêm địa chỉ
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {showAddressForm && (
+            <div className="mb-6 p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900">Thêm địa chỉ mới</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowAddressForm(false)
+                    setAddress({ street: "", ward: "", district: "", city: "" })
+                  }}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="grid gap-4">
+                <div>
+                  <Label htmlFor="street" className="text-sm font-medium">
+                    Số nhà, tên đường
+                  </Label>
+                  <Input
+                    id="street"
+                    placeholder="VD: 108 Nguyễn Thường Hiền"
+                    value={address.street}
+                    onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="ward" className="text-sm font-medium">
+                      Phường/Xã
+                    </Label>
+                    <Input
+                      id="ward"
+                      placeholder="VD: Phường 1"
+                      value={address.ward}
+                      onChange={(e) => setAddress({ ...address, ward: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="district" className="text-sm font-medium">
+                      Quận/Huyện
+                    </Label>
+                    <Input
+                      id="district"
+                      placeholder="VD: Gò Vấp"
+                      value={address.district}
+                      onChange={(e) => setAddress({ ...address, district: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="city" className="text-sm font-medium">
+                    Tỉnh/Thành phố
+                  </Label>
+                  <Input
+                    id="city"
+                    placeholder="VD: Hồ Chí Minh"
+                    value={address.city}
+                    onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
+                <div className="flex justify-end space-x-2 mt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowAddressForm(false)
+                      setAddress({ street: "", ward: "", district: "", city: "" })
+                    }}
+                  >
+                    Hủy
+                  </Button>
+                  <Button onClick={handleSaveAddress} className="bg-blue-600 hover:bg-blue-700">
+                    Lưu địa chỉ
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {deliveryAddresses.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <MapPin className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>Chưa có địa chỉ nào. Nhấn "Thêm địa chỉ" để thêm địa chỉ giao hàng.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {deliveryAddresses.map((addr) => (
+                <div
+                  key={addr.id}
+                  className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                    selectedAddressId === addr.id
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() => handleSelectAddress(addr.id)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        {selectedAddressId === addr.id && (
+                          <div className="flex items-center space-x-1 text-blue-600 text-sm font-medium">
+                            <Check className="w-4 h-4" />
+                            <span>Địa chỉ đã chọn</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-700">
+                        {addr.street}, {addr.ward}, {addr.district}, {addr.city}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteAddress(addr.id)
+                      }}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}

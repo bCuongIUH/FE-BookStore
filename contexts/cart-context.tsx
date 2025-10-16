@@ -2,15 +2,33 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import type { Product } from "@/lib/products-data"
+
+export interface Product {
+  id: string
+  name: string
+  price: number
+  image: string
+  author?: string
+  category?: string
+}
 
 export interface CartItem {
   product: Product
   quantity: number
 }
 
+export interface DeliveryAddress {
+  id: string
+  street: string // Số nhà, tên đường
+  ward: string // Phường/Xã
+  district: string // Quận/Huyện
+  city: string // Tỉnh/Thành phố
+}
+
 interface CartContextType {
   items: CartItem[]
+  deliveryAddresses: DeliveryAddress[]
+  selectedAddressId: string | null
   addToCart: (product: Product, quantity?: number) => void
   removeFromCart: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
@@ -20,48 +38,59 @@ interface CartContextType {
   getShippingFee: () => number
   getTax: () => number
   getFinalTotal: () => number
+  saveDeliveryAddress: (address: Omit<DeliveryAddress, "id">) => void
+  selectAddress: (addressId: string) => void
+  deleteAddress: (addressId: string) => void
+  updateAddress: (addressId: string, address: Omit<DeliveryAddress, "id">) => void
+  getSelectedAddress: () => DeliveryAddress | null
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const [deliveryAddresses, setDeliveryAddresses] = useState<DeliveryAddress[]>([])
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null)
 
-  // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem("bookstore_cart")
+    const savedCart = localStorage.getItem("cart")
+    const savedAddresses = localStorage.getItem("deliveryAddresses")
+    const savedSelectedId = localStorage.getItem("selectedAddressId")
+
     if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart))
-      } catch (error) {
-        localStorage.removeItem("bookstore_cart")
-      }
+      setItems(JSON.parse(savedCart))
+    }
+    if (savedAddresses) {
+      setDeliveryAddresses(JSON.parse(savedAddresses))
+    }
+    if (savedSelectedId) {
+      setSelectedAddressId(savedSelectedId)
     }
   }, [])
 
-  // Save cart to localStorage whenever items change
   useEffect(() => {
-    localStorage.setItem("bookstore_cart", JSON.stringify(items))
+    localStorage.setItem("cart", JSON.stringify(items))
   }, [items])
+
+  useEffect(() => {
+    localStorage.setItem("deliveryAddresses", JSON.stringify(deliveryAddresses))
+  }, [deliveryAddresses])
+
+  useEffect(() => {
+    if (selectedAddressId) {
+      localStorage.setItem("selectedAddressId", selectedAddressId)
+    }
+  }, [selectedAddressId])
 
   const addToCart = (product: Product, quantity = 1) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.product.id === product.id)
-
       if (existingItem) {
-        // Update quantity if item already exists
-        const newQuantity = existingItem.quantity + quantity
-        if (newQuantity > product.inStock) {
-          return prevItems // Don't add if exceeds stock
-        }
-        return prevItems.map((item) => (item.product.id === product.id ? { ...item, quantity: newQuantity } : item))
-      } else {
-        // Add new item
-        if (quantity > product.inStock) {
-          return prevItems // Don't add if exceeds stock
-        }
-        return [...prevItems, { product, quantity }]
+        return prevItems.map((item) =>
+          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item,
+        )
       }
+      return [...prevItems, { product, quantity }]
     })
   }
 
@@ -74,16 +103,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeFromCart(productId)
       return
     }
-
-    setItems((prevItems) =>
-      prevItems.map((item) => {
-        if (item.product.id === productId) {
-          const newQuantity = Math.min(quantity, item.product.inStock)
-          return { ...item, quantity: newQuantity }
-        }
-        return item
-      }),
-    )
+    setItems((prevItems) => prevItems.map((item) => (item.product.id === productId ? { ...item, quantity } : item)))
   }
 
   const clearCart = () => {
@@ -99,10 +119,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getShippingFee = () => {
-    const totalPrice = getTotalPrice()
-    if (totalPrice >= 500000) return 0 // Free shipping for orders over 500k
-    if (totalPrice >= 200000) return 20000 // 20k shipping for orders over 200k
-    return 30000 // 30k shipping for smaller orders
+    const total = getTotalPrice()
+    if (total >= 200000) return 0 // Free shipping for orders over 200k
+    return 30000 // 30k shipping fee
   }
 
   const getTax = () => {
@@ -113,10 +132,42 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return getTotalPrice() + getShippingFee() + getTax()
   }
 
+  const saveDeliveryAddress = (address: Omit<DeliveryAddress, "id">) => {
+    const newAddress: DeliveryAddress = {
+      ...address,
+      id: Date.now().toString(),
+    }
+    setDeliveryAddresses((prev) => [...prev, newAddress])
+    if (!selectedAddressId) {
+      setSelectedAddressId(newAddress.id)
+    }
+  }
+
+  const selectAddress = (addressId: string) => {
+    setSelectedAddressId(addressId)
+  }
+
+  const deleteAddress = (addressId: string) => {
+    setDeliveryAddresses((prev) => prev.filter((addr) => addr.id !== addressId))
+    if (selectedAddressId === addressId) {
+      setSelectedAddressId(null)
+    }
+  }
+
+  const updateAddress = (addressId: string, address: Omit<DeliveryAddress, "id">) => {
+    setDeliveryAddresses((prev) => prev.map((addr) => (addr.id === addressId ? { ...addr, ...address } : addr)))
+  }
+
+  const getSelectedAddress = () => {
+    return deliveryAddresses.find((addr) => addr.id === selectedAddressId) || null
+  }
+
   return (
     <CartContext.Provider
       value={{
         items,
+        deliveryAddresses,
+        selectedAddressId,
         addToCart,
         removeFromCart,
         updateQuantity,
@@ -126,6 +177,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         getShippingFee,
         getTax,
         getFinalTotal,
+        saveDeliveryAddress,
+        selectAddress,
+        deleteAddress,
+        updateAddress,
+        getSelectedAddress,
       }}
     >
       {children}
