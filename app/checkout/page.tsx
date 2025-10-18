@@ -23,7 +23,7 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "bank_transfer">("cod")
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: user?.name || "",
-    phone: "",
+    phone: user?.phone || "",
     email: user?.email || "",
     address: "",
     ward: "",
@@ -34,8 +34,19 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (items.length === 0) {
-      // message.error("Giỏ hàng của bạn đang trống!")
       router.push("/cart")
+    }
+
+    const savedAddress = localStorage.getItem("selectedDeliveryAddress")
+    if (savedAddress) {
+      const addr = JSON.parse(savedAddress)
+      setShippingAddress((prev) => ({
+        ...prev,
+        address: addr.street,
+        ward: addr.ward,
+        district: addr.district,
+        city: addr.city,
+      }))
     }
   }, [items, router])
 
@@ -73,7 +84,6 @@ export default function CheckoutPage() {
     setIsLoading(true)
 
     try {
-      // Save checkout data to localStorage for payment page
       const checkoutData = {
         items,
         shippingAddress,
@@ -81,6 +91,7 @@ export default function CheckoutPage() {
         shippingFee: getShippingFee(),
         tax: getTax(),
         total: getFinalTotal(),
+        paymentMethod,
       }
 
       localStorage.setItem("checkoutData", JSON.stringify(checkoutData))
@@ -308,13 +319,12 @@ export default function CheckoutPage() {
                 {items.map((item) => (
                   <div key={item.product.id} className="flex items-center space-x-3">
                     <img
-                      src={item.product.image || "/placeholder.svg"}
+                      src={item.product.coverImage || "/placeholder.svg"}
                       alt={item.product.title}
                       className="w-12 h-12 object-cover rounded"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 line-clamp-2">{item.product.title}</p>
-                      <p className="text-xs text-gray-500">{item.product.author}</p>
                       <p className="text-sm text-gray-600">
                         {item.quantity} × {item.product.price.toLocaleString("vi-VN")}đ
                       </p>

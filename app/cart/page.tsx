@@ -10,9 +10,15 @@ import { ShoppingCart, ArrowLeft, Truck, CreditCard, MapPin, Plus, Trash2, Check
 import { useCart } from "@/contexts/cart-context"
 import CartItemComponent from "@/components/cart-item"
 import { message } from "antd"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { getActiveAddresses, getCustomerByUserId  } from "@/utils/addressApi"
+import { useAuth } from "@/contexts/auth-context"
+
 
 export default function CartPage() {
+   const { user } = useAuth()
+  const router = useRouter()
   const {
     items,
     clearCart,
@@ -28,6 +34,42 @@ export default function CartPage() {
     deleteAddress,
     getSelectedAddress,
   } = useCart()
+const [customerId, setCustomerId] = useState(null);
+const [addresses, setAddresses] = useState([])
+
+useEffect(() => {
+  const fetchAddresses = async () => {
+    try {
+      if (!user?.id) return; // user._id là id của User
+
+      // 🔹 1. Lấy customerId theo userId
+      const customerRes = await getCustomerByUserId(user.id);
+      if (!customerRes.success || !customerRes.data) {
+        message.error("Không tìm thấy khách hàng tương ứng!");
+        return;
+      }
+
+      const cId = customerRes.data._id;
+      setCustomerId(cId);
+
+      // 🔹 2. Gọi API lấy danh sách địa chỉ theo customerId
+      const addressRes = await getActiveAddresses(cId);
+      if (addressRes.success) {
+        setAddresses(addressRes.addresses || []);
+      } else {
+        message.error(addressRes.message || "Không thể tải danh sách địa chỉ");
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi lấy địa chỉ:", error);
+      message.error("Không thể tải danh sách địa chỉ");
+    }
+  };
+
+  fetchAddresses();
+}, [user]);
+
+
+
 
   const [showAddressForm, setShowAddressForm] = useState(false)
   const [address, setAddress] = useState({
@@ -72,7 +114,19 @@ export default function CartPage() {
       message.error("Vui lòng chọn địa chỉ giao hàng!")
       return
     }
-    window.location.href = "/checkout"
+    const selectedAddr = getSelectedAddress()
+    if (selectedAddr) {
+      localStorage.setItem(
+        "selectedDeliveryAddress",
+        JSON.stringify({
+          street: selectedAddr.street,
+          ward: selectedAddr.ward,
+          district: selectedAddr.district,
+          city: selectedAddr.city,
+        }),
+      )
+    }
+    router.push("/checkout")
   }
 
   if (items.length === 0) {

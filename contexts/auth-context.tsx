@@ -13,6 +13,7 @@ interface User {
   email: string
   name: string
   avatar?: string
+  phone : string
 }
 
 interface AuthContextType {
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: result.user.email,
           name: result.user.name,
           avatar: result.user.avatar,
+          phone : result.user.phone
         }
         setUser(userData)
         localStorage.setItem("bookstore_user", JSON.stringify(userData))
@@ -115,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: result.user.email,
           name: result.user.name,
           avatar: result.user.avatar,
+            phone : result.user.phone
         }
         setUser(userData)
         localStorage.setItem("bookstore_user", JSON.stringify(userData))
