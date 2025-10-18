@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "BookStore - Cửa hàng sách trực tuyến",
   description:
     "Cửa hàng sách trực tuyến hàng đầu Việt Nam với hàng ngàn đầu sách chất lượng",
-  generator: "v0.dev",
+  generator: "KT",
 };
 
 export default function RootLayout({

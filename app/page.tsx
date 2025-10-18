@@ -22,7 +22,7 @@ export default function HomePage() {
       reviews: 1250,
       image: "/dac-nhan-tam-book-cover.png",
       badge: "Bestseller",
-      inStock: 25, // Added stock quantity
+      inStock: 25, 
     },
     {
       id: 2,
