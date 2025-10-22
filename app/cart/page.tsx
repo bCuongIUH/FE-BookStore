@@ -43,7 +43,7 @@ export default function CartPage() {
     district: "",
     city: "",
   })
-  
+
 useEffect(() => {
     const fetchAddresses = async () => {
       try {
@@ -89,50 +89,100 @@ useEffect(() => {
     message.success("Đã xóa tất cả sản phẩm khỏi giỏ hàng!")
   }
 
-  const handleSaveAddress = async () => {
-    if (!address.street || !address.ward || !address.district || !address.city) {
-      message.error("Vui lòng điền đầy đủ thông tin địa chỉ!")
-      return
-    }
+  // const handleSaveAddress = async () => {
+  //   if (!address.street || !address.ward || !address.district || !address.city) {
+  //     message.error("Vui lòng điền đầy đủ thông tin địa chỉ!")
+  //     return
+  //   }
 
-    if (!customerId) {
-      message.error("Không tìm thấy khách hàng!")
-      return
-    }
+  //   if (!customerId) {
+  //     message.error("Không tìm thấy khách hàng!")
+  //     return
+  //   }
 
-    try {
-      // Format address as a single string
-      const fullAddress = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`
+  //   try {
+  //     // Format address as a single string
+  //     const fullAddress = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`
 
-      const result = await addCustomerAddress(customerId, fullAddress)
-      if (result.success) {
-        // Refresh addresses list from API
-        const addressRes = await getActiveAddresses(customerId)
-        if (addressRes.success) {
-          const formattedAddresses = (addressRes.addresses || []).map((addr: any) => ({
-            id: addr.id || addr._id,
-            street: addr.street,
-            ward: addr.ward,
-            district: addr.district,
-            city: addr.city,
-          }))
-          setDeliveryAddresses(formattedAddresses)
-          // Auto-select the newly added address
-          if (formattedAddresses.length > 0) {
-            selectAddress(formattedAddresses[formattedAddresses.length - 1].id)
-          }
-        }
-        message.success("Đã lưu địa chỉ giao hàng!")
-        setAddress({ street: "", ward: "", district: "", city: "" })
-        setShowAddressForm(false)
-      } else {
-        message.error(result.message || "Không thể lưu địa chỉ")
-      }
-    } catch (error) {
-      console.error("❌ Lỗi khi lưu địa chỉ:", error)
-      message.error("Không thể lưu địa chỉ")
-    }
+  //     const result = await addCustomerAddress(customerId, fullAddress)
+  //     if (result.success) {
+  //       // Refresh addresses list from API
+  //       const addressRes = await getActiveAddresses(customerId)
+  //       if (addressRes.success) {
+  //         const formattedAddresses = (addressRes.addresses || []).map((addr: any) => ({
+  //           id: addr.id || addr._id,
+  //           street: addr.street,
+  //           ward: addr.ward,
+  //           district: addr.district,
+  //           city: addr.city,
+  //         }))
+  //         setDeliveryAddresses(formattedAddresses)
+  //         // Auto-select the newly added address
+  //         if (formattedAddresses.length > 0) {
+  //           selectAddress(formattedAddresses[formattedAddresses.length - 1].id)
+  //         }
+  //       }
+  //       message.success("Đã lưu địa chỉ giao hàng!")
+  //       setAddress({ street: "", ward: "", district: "", city: "" })
+  //       setShowAddressForm(false)
+  //     } else {
+  //       message.error(result.message || "Không thể lưu địa chỉ")
+  //     }
+  //   } catch (error) {
+  //     console.error("❌ Lỗi khi lưu địa chỉ:", error)
+  //     message.error("Không thể lưu địa chỉ")
+  //   }
+  // }
+
+const handleSaveAddress = async () => {
+  if (!address.street || !address.ward || !address.district || !address.city) {
+    message.error("Vui lòng điền đầy đủ thông tin địa chỉ!");
+    return;
   }
+
+  if (!customerId) {
+    message.error("Không tìm thấy khách hàng!");
+    return;
+  }
+
+  try {
+    // Gửi địa chỉ chi tiết thay vì fullAddress
+    const result = await addCustomerAddress(customerId, {
+      street: address.street,
+      ward: address.ward,
+      district: address.district,
+      city: address.city
+    });
+
+    if (result.success) {
+      // Refresh addresses list from API
+      const addressRes = await getActiveAddresses(customerId);
+      if (addressRes.success) {
+        const formattedAddresses = (addressRes.addresses || []).map((addr: any) => ({
+          id: addr.id || addr._id,
+          street: addr.street,
+          ward: addr.ward,
+          district: addr.district,
+          city: addr.city,
+        }));
+        setDeliveryAddresses(formattedAddresses);
+
+        // Auto-select the newly added address
+        if (formattedAddresses.length > 0) {
+          selectAddress(formattedAddresses[formattedAddresses.length - 1].id);
+        }
+      }
+      message.success("Đã lưu địa chỉ giao hàng!");
+      setAddress({ street: "", ward: "", district: "", city: "" });
+      setShowAddressForm(false);
+    } else {
+      message.error(result.message || "Không thể lưu địa chỉ");
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi lưu địa chỉ:", error);
+    message.error("Không thể lưu địa chỉ");
+  }
+};
 
   const handleSelectAddress = (addressId: string) => {
     selectAddress(addressId)

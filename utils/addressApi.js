@@ -4,11 +4,14 @@ const API_URL = "http://localhost:5000/api";
 axios.defaults.withCredentials = true;
 
 // 🏠 Thêm địa chỉ mới
-export const addCustomerAddress = async (customerId, address) => {
+export const addCustomerAddress = async (customerId, { street, ward, district, city }) => {
   try {
     const res = await axios.post(`${API_URL}/customer/add-address`, {
       customerId,
-      address,
+      street,  // Gửi các trường riêng biệt
+      ward,
+      district,
+      city,
     });
     return res.data;
   } catch (error) {
@@ -20,6 +23,7 @@ export const addCustomerAddress = async (customerId, address) => {
     };
   }
 };
+
 // lấy customer theo id của user
 export const getCustomerByUserId = async (userId) => {
   try {

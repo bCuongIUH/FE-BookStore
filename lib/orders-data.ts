@@ -1,9 +1,4 @@
-// ===============================
-// 📦 Interfaces
-
-import { createOrder } from "@/utils/orderApi"
-
-// ===============================
+import axios from "axios";
 export interface ShippingAddress {
   fullName: string
   phone: string
@@ -74,117 +69,138 @@ export function generateOrderNumber(): string {
 }
 
 // ===============================
-// 🧾 Tạo đơn hàng (API thật)
-// ===============================
-// export async function saveOrderToAPI(checkoutData: CheckoutData): Promise<any> {
-//   try {
-//     const orderItems = checkoutData.items.map((item) => ({
-//       productId: item.product.id,
-//       title: item.product.title,
-//       author: item.product.author,
-//       price: item.product.price,
-//       quantity: item.quantity,
-//       image: item.product.coverImage,
-//     }))
-
-//     const orderNumber = generateOrderNumber()
-
-//     const orderData = {
-//       orderNumber,
-//       customerId: checkoutData.customerId || null,
-//       items: orderItems,
-//       shippingAddress: checkoutData.shippingAddress,
-//       paymentMethod: checkoutData.paymentMethod,
-//       subtotal: checkoutData.subtotal,
-//       shippingFee: checkoutData.shippingFee,
-//       tax: checkoutData.tax,
-//       total: checkoutData.total,
-//       status: checkoutData.paymentMethod === "cod" ? "pending" : "confirmed",
-//     }
-
-//     const res = await createOrder(orderData)
-//     return res
-//   } catch (error: any) {
-//     console.error("❌ Lỗi tạo đơn hàng qua API:", error)
-//     throw error
-//   }
-// }
-
-// ===============================
 // 💾 MOCK LOCAL STORAGE (fallback khi không có API)
 // ===============================
-export function createSampleOrders(): void {
-  const sampleOrders: Order[] = [
-    {
-      id: "1",
-      orderNumber: "BK123456ABC",
-      items: [
-        {
-          productId: "1",
-          title: "Đắc Nhân Tâm",
-          author: "Dale Carnegie",
-          price: 89000,
-          quantity: 1,
-          image: "/dac-nhan-tam-book-cover.png",
-        },
-      ],
-      shippingAddress: {
-        fullName: "Nguyễn Văn A",
-        phone: "0123456789",
-        email: "user@example.com",
-        address: "123 Đường ABC",
-        ward: "Phường 1",
-        district: "Quận 1",
-        city: "TP.HCM",
-      },
-      paymentMethod: "cod",
-      subtotal: 89000,
-      shippingFee: 0,
-      tax: 8900,
-      total: 97900,
-      status: "completed",
-      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      completedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    },
-    {
-      id: "2",
-      orderNumber: "BK789012DEF",
-      items: [
-        {
-          productId: "2",
-          title: "Sapiens: Lược sử loài người",
-          author: "Yuval Noah Harari",
-          price: 156000,
-          quantity: 1,
-          image: "/sapiens-book-cover.png",
-        },
-      ],
-      shippingAddress: {
-        fullName: "Trần Thị B",
-        phone: "0987654321",
-        email: "user2@example.com",
-        address: "456 Đường XYZ",
-        ward: "Phường 2",
-        district: "Quận 2",
-        city: "TP.HCM",
-      },
-      paymentMethod: "bank_transfer",
-      subtotal: 156000,
-      shippingFee: 30000,
-      tax: 15600,
-      total: 201600,
-      status: "refunded",
-      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      refundReason: "Sách bị lỗi in ấn",
-      refundDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    },
-  ]
+// export function createSampleOrders(): void {
+//   const sampleOrders: Order[] = [
+//     {
+//       id: "1",
+//       orderNumber: "BK123456ABC",
+//       items: [
+//         {
+//           productId: "1",
+//           title: "Đắc Nhân Tâm",
+//           author: "Dale Carnegie",
+//           price: 89000,
+//           quantity: 1,
+//           image: "/dac-nhan-tam-book-cover.png",
+//         },
+//       ],
+//       shippingAddress: {
+//         fullName: "Nguyễn Văn A",
+//         phone: "0123456789",
+//         email: "user@example.com",
+//         address: "123 Đường ABC",
+//         ward: "Phường 1",
+//         district: "Quận 1",
+//         city: "TP.HCM",
+//       },
+//       paymentMethod: "cod",
+//       subtotal: 89000,
+//       shippingFee: 0,
+//       tax: 8900,
+//       total: 97900,
+//       status: "completed",
+//       createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+//       updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+//       completedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+//     },
+//     {
+//       id: "2",
+//       orderNumber: "BK789012DEF",
+//       items: [
+//         {
+//           productId: "2",
+//           title: "Sapiens: Lược sử loài người",
+//           author: "Yuval Noah Harari",
+//           price: 156000,
+//           quantity: 1,
+//           image: "/sapiens-book-cover.png",
+//         },
+//       ],
+//       shippingAddress: {
+//         fullName: "Trần Thị B",
+//         phone: "0987654321",
+//         email: "user2@example.com",
+//         address: "456 Đường XYZ",
+//         ward: "Phường 2",
+//         district: "Quận 2",
+//         city: "TP.HCM",
+//       },
+//       paymentMethod: "bank_transfer",
+//       subtotal: 156000,
+//       shippingFee: 30000,
+//       tax: 15600,
+//       total: 201600,
+//       status: "refunded",
+//       createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+//       updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+//       refundReason: "Sách bị lỗi in ấn",
+//       refundDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+//     },
+//   ]
 
-  const existingOrders = getOrders()
-  if (existingOrders.length === 0) {
-    localStorage.setItem("bookstore_orders", JSON.stringify(sampleOrders))
+//   const existingOrders = getOrders()
+//   if (existingOrders.length === 0) {
+//     localStorage.setItem("bookstore_orders", JSON.stringify(sampleOrders))
+//   }
+// }
+export async function createSampleOrders(): Promise<void> {
+  try {
+    // 1. Gọi API từ http://localhost:5000/api/orders/
+    const response = await axios.get("http://localhost:5000/api/orders/");
+
+    // 2. Kiểm tra dữ liệu trả về từ API
+    if (response.data.success && response.data.orders) {
+      const orders: Order[] = response.data.orders.map((order: any) => ({
+        id: order._id,
+        orderNumber: order.orderCode,
+        items: order.items.map((item: any) => ({
+          productId: item.productId,
+          title: item.title,
+          price: item.price,
+          quantity: item.quantity,
+        image: item.image ? item.image : "/default-image.png"
+        })),
+        shippingAddress: {
+          fullName: order.shippingAddress.fullName,
+          phone: order.shippingAddress.phone,
+          email: order.shippingAddress.email,
+          address: order.shippingAddress.address,
+          ward: order.shippingAddress.ward,
+          district: order.shippingAddress.district,
+          city: order.shippingAddress.city,
+          notes: order.shippingAddress.notes,
+        },
+        paymentMethod: order.paymentMethod,
+        subtotal: order.subtotal,
+        shippingFee: order.shippingFee,
+        tax: order.tax,
+        total: order.total,
+        status: order.status,
+        createdAt: new Date(order.createdAt),
+        updatedAt: new Date(order.updatedAt),
+        notes: order.notes,
+        refundReason: order.refundReason,
+        refundDate: order.refundDate ? new Date(order.refundDate) : undefined,
+        completedDate: order.completedDate ? new Date(order.completedDate) : undefined,
+      }));
+
+      // 3. Lưu dữ liệu vào localStorage
+      const existingOrders = getOrders();
+      if (existingOrders.length === 0) {
+        localStorage.setItem("bookstore_orders", JSON.stringify(orders));
+      } else {
+        // Có thể thực hiện gộp với các đơn hàng hiện có
+        localStorage.setItem("bookstore_orders", JSON.stringify(existingOrders.concat(orders)));
+      }
+
+      console.log("Dữ liệu đã được nhập thành công!");
+    } else {
+      console.error("Dữ liệu không hợp lệ từ API");
+    }
+  } catch (error) {
+    console.error("Lỗi khi gọi API hoặc lưu dữ liệu:", error);
   }
 }
 
