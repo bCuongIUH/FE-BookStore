@@ -23,7 +23,7 @@ export const addCustomerAddress = async (customerId, address) => {
 // lấy customer theo id của user
 export const getCustomerByUserId = async (userId) => {
   try {
-    const res = await axios.get(`${API_URL}/user/${userId}`);
+    const res = await axios.get(`${API_URL}/customer/user/${userId}`);
     return res.data; // { success, data: customer }
   } catch (error) {
     console.error("❌ Lỗi khi lấy customer:", error);

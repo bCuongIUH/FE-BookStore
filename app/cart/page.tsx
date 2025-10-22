@@ -18,6 +18,8 @@ import { useAuth } from "@/contexts/auth-context"
 
 export default function CartPage() {
    const { user } = useAuth()
+ 
+   
   const router = useRouter()
   const {
     items,
@@ -36,6 +38,7 @@ export default function CartPage() {
   } = useCart()
 const [customerId, setCustomerId] = useState(null);
 const [addresses, setAddresses] = useState([])
+
 
 useEffect(() => {
   const fetchAddresses = async () => {
@@ -68,9 +71,6 @@ useEffect(() => {
   fetchAddresses();
 }, [user]);
 
-
-
-
   const [showAddressForm, setShowAddressForm] = useState(false)
   const [address, setAddress] = useState({
     street: "",
@@ -78,6 +78,7 @@ useEffect(() => {
     district: "",
     city: "",
   })
+
 
   const handleClearCart = () => {
     clearCart()
