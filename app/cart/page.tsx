@@ -12,14 +12,12 @@ import CartItemComponent from "@/components/cart-item"
 import { message } from "antd"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { getActiveAddresses, getCustomerByUserId  } from "@/utils/addressApi"
+import { getActiveAddresses, getCustomerByUserId, softDeleteAddress, addCustomerAddress } from "@/utils/addressApi"
 import { useAuth } from "@/contexts/auth-context"
 
-
 export default function CartPage() {
-   const { user } = useAuth()
- 
-   
+  const { user } = useAuth()
+
   const router = useRouter()
   const {
     items,
@@ -31,46 +29,13 @@ export default function CartPage() {
     getFinalTotal,
     deliveryAddresses,
     selectedAddressId,
-    saveDeliveryAddress,
     selectAddress,
     deleteAddress,
+    setDeliveryAddresses,
     getSelectedAddress,
   } = useCart()
-const [customerId, setCustomerId] = useState(null);
-const [addresses, setAddresses] = useState([])
 
-
-useEffect(() => {
-  const fetchAddresses = async () => {
-    try {
-      if (!user?.id) return; // user._id là id của User
-
-      // 🔹 1. Lấy customerId theo userId
-      const customerRes = await getCustomerByUserId(user.id);
-      if (!customerRes.success || !customerRes.data) {
-        message.error("Không tìm thấy khách hàng tương ứng!");
-        return;
-      }
-
-      const cId = customerRes.data._id;
-      setCustomerId(cId);
-
-      // 🔹 2. Gọi API lấy danh sách địa chỉ theo customerId
-      const addressRes = await getActiveAddresses(cId);
-      if (addressRes.success) {
-        setAddresses(addressRes.addresses || []);
-      } else {
-        message.error(addressRes.message || "Không thể tải danh sách địa chỉ");
-      }
-    } catch (error) {
-      console.error("❌ Lỗi khi lấy địa chỉ:", error);
-      message.error("Không thể tải danh sách địa chỉ");
-    }
-  };
-
-  fetchAddresses();
-}, [user]);
-
+  const [customerId, setCustomerId] = useState(null)
   const [showAddressForm, setShowAddressForm] = useState(false)
   const [address, setAddress] = useState({
     street: "",
@@ -78,22 +43,95 @@ useEffect(() => {
     district: "",
     city: "",
   })
+  
+useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        if (!user?.id) return
 
+        // 1. Get customerId from userId
+        const customerRes = await getCustomerByUserId(user.id)
+        if (!customerRes.success || !customerRes.data) {
+          message.error("Không tìm thấy khách hàng tương ứng!")
+          return
+        }
 
+        const cId = customerRes.data._id
+        setCustomerId(cId)
+
+        // 2. Get addresses list from API
+        const addressRes = await getActiveAddresses(cId)
+        if (addressRes.success) {
+          const formattedAddresses = (addressRes.addresses || []).map((addr: any) => ({
+            id: addr.id || addr._id,
+            street: addr.street,
+            ward: addr.ward,
+            district: addr.district,
+            city: addr.city,
+          }))
+          setDeliveryAddresses(formattedAddresses)
+          if (formattedAddresses.length > 0 && !selectedAddressId) {
+            selectAddress(formattedAddresses[0].id)
+          }
+        } else {
+          message.error(addressRes.message || "Không thể tải danh sách địa chỉ")
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi lấy địa chỉ:", error)
+        message.error("Không thể tải danh sách địa chỉ")
+      }
+    }
+
+    fetchAddresses()
+  }, [user, setDeliveryAddresses, selectedAddressId])
   const handleClearCart = () => {
     clearCart()
     message.success("Đã xóa tất cả sản phẩm khỏi giỏ hàng!")
   }
 
-  const handleSaveAddress = () => {
+  const handleSaveAddress = async () => {
     if (!address.street || !address.ward || !address.district || !address.city) {
       message.error("Vui lòng điền đầy đủ thông tin địa chỉ!")
       return
     }
-    saveDeliveryAddress(address)
-    message.success("Đã lưu địa chỉ giao hàng!")
-    setAddress({ street: "", ward: "", district: "", city: "" })
-    setShowAddressForm(false)
+
+    if (!customerId) {
+      message.error("Không tìm thấy khách hàng!")
+      return
+    }
+
+    try {
+      // Format address as a single string
+      const fullAddress = `${address.street}, ${address.ward}, ${address.district}, ${address.city}`
+
+      const result = await addCustomerAddress(customerId, fullAddress)
+      if (result.success) {
+        // Refresh addresses list from API
+        const addressRes = await getActiveAddresses(customerId)
+        if (addressRes.success) {
+          const formattedAddresses = (addressRes.addresses || []).map((addr: any) => ({
+            id: addr.id || addr._id,
+            street: addr.street,
+            ward: addr.ward,
+            district: addr.district,
+            city: addr.city,
+          }))
+          setDeliveryAddresses(formattedAddresses)
+          // Auto-select the newly added address
+          if (formattedAddresses.length > 0) {
+            selectAddress(formattedAddresses[formattedAddresses.length - 1].id)
+          }
+        }
+        message.success("Đã lưu địa chỉ giao hàng!")
+        setAddress({ street: "", ward: "", district: "", city: "" })
+        setShowAddressForm(false)
+      } else {
+        message.error(result.message || "Không thể lưu địa chỉ")
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi lưu địa chỉ:", error)
+      message.error("Không thể lưu địa chỉ")
+    }
   }
 
   const handleSelectAddress = (addressId: string) => {
@@ -101,9 +139,38 @@ useEffect(() => {
     message.success("Đã chọn địa chỉ giao hàng!")
   }
 
-  const handleDeleteAddress = (addressId: string) => {
-    deleteAddress(addressId)
-    message.success("Đã xóa địa chỉ!")
+  const handleDeleteAddress = async (addressId: string) => {
+    if (!customerId) return
+
+    try {
+      // Find the index of the address to delete
+      const index = deliveryAddresses.findIndex((addr) => addr.id === addressId)
+      if (index === -1) return
+
+      const result = await softDeleteAddress(customerId, index)
+      if (result.success) {
+        const updatedAddresses = (result.addresses || []).map((addr: any) => ({
+          id: addr.id || addr._id,
+          street: addr.street,
+          ward: addr.ward,
+          district: addr.district,
+          city: addr.city,
+        }))
+        setDeliveryAddresses(updatedAddresses)
+
+        if (selectedAddressId === addressId) {
+          if (updatedAddresses.length > 0) {
+            selectAddress(updatedAddresses[0].id)
+          }
+        }
+        message.success("Đã xóa địa chỉ!")
+      } else {
+        message.error(result.message || "Không thể xóa địa chỉ")
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi xóa địa chỉ:", error)
+      message.error("Không thể xóa địa chỉ")
+    }
   }
 
   const handleCheckout = () => {
@@ -111,10 +178,11 @@ useEffect(() => {
       message.error("Giỏ hàng của bạn đang trống!")
       return
     }
-    if (!getSelectedAddress()) {
+    if (deliveryAddresses.length === 0 || !selectedAddressId) {
       message.error("Vui lòng chọn địa chỉ giao hàng!")
       return
     }
+
     const selectedAddr = getSelectedAddress()
     if (selectedAddr) {
       localStorage.setItem(

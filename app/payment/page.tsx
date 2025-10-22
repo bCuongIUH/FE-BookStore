@@ -9,6 +9,7 @@
 // import { useCart } from "@/contexts/cart-context"
 // import type { CheckoutData } from "@/lib/orders-data"
 // import { message } from "antd"
+// import { useAuth } from "@/contexts/auth-context"
 
 // export default function PaymentPage() {
 //   const router = useRouter()
@@ -16,7 +17,7 @@
 //   const [isProcessing, setIsProcessing] = useState(false)
 //   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null)
 //   const [orderId, setOrderId] = useState<string>("")
-
+//  const { user } = useAuth()
 //   useEffect(() => {
 //     const savedCheckoutData = localStorage.getItem("checkoutData")
 //     if (!savedCheckoutData) {
@@ -33,39 +34,74 @@
 //     setOrderId(newOrderId)
 //   }, [router])
 
-//   const handleConfirmPayment = async () => {
-//     if (!checkoutData) return
+// const handleConfirmPayment = async () => {
+//   if (!checkoutData) return
 
-//     setIsProcessing(true)
+//   setIsProcessing(true)
 
-//     try {
-//       await new Promise((resolve) => setTimeout(resolve, 2000))
+//   try {
+//     // Chờ trong 2 giây để mô phỏng quá trình xử lý
+//     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-//       // Save order to localStorage
-//       const order = {
-//         id: orderId,
-//         ...checkoutData,
-//         status: checkoutData.paymentMethod === "cod" ? "pending" : "confirmed",
-//         createdAt: new Date().toISOString(),
-//       }
+//     // Tạo đối tượng items để gửi lên BE
+//     const orderItems = checkoutData.items.map((item) => ({
+//       productId: item.product.id,
+//       title: item.product.title,
+//       price: item.product.price,
+//       quantity: item.quantity,
+//       image: item.product.coverImage,
+//     }))
 
+//     // Dữ liệu gửi lên BE
+//     const orderData = {
+//       orderCode: orderId, // Mã đơn hàng
+//       user: user?.id, // ID người dùng, nếu có
+//       items: orderItems,
+//       shippingAddress: checkoutData.shippingAddress,
+//       subtotal: checkoutData.subtotal,
+//       shippingFee: checkoutData.shippingFee,
+//       tax: checkoutData.tax,
+//       total: checkoutData.total,
+//       paymentMethod: checkoutData.paymentMethod, // COD hoặc Bank Transfer
+//     }
+
+//     // Gửi yêu cầu POST lên BE (giả sử endpoint là /api/order)
+//     const response = await fetch("/api/order", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(orderData),
+//     })
+
+//     const result = await response.json()
+
+//     if (result.success) {
+//       message.success("Thanh toán thành công!")
+
+//       // Lưu đơn hàng vào localStorage
 //       const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]")
-//       existingOrders.push(order)
+//       existingOrders.push(result.order) // Đảm bảo BE trả về đơn hàng đã được tạo
 //       localStorage.setItem("orders", JSON.stringify(existingOrders))
 
-//       // Clear cart and checkout data
+//       // Xóa giỏ hàng và dữ liệu thanh toán
 //       clearCart()
 //       localStorage.removeItem("checkoutData")
 //       localStorage.removeItem("selectedDeliveryAddress")
 
-//       message.success("Thanh toán thành công!")
+//       // Chuyển hướng tới trang xác nhận đơn hàng
 //       router.push(`/order-confirmation?orderId=${orderId}`)
-//     } catch (error) {
-//       message.error("Có lỗi xảy ra. Vui lòng thử lại!")
-//     } finally {
-//       setIsProcessing(false)
+//     } else {
+//       message.error(result.message || "Không thể tạo đơn hàng. Vui lòng thử lại!")
 //     }
+//   } catch (error) {
+//     console.error("Lỗi thanh toán:", error)
+//     message.error("Có lỗi xảy ra. Vui lòng thử lại!")
+//   } finally {
+//     setIsProcessing(false)
 //   }
+// }
+
 
 //   if (!checkoutData) {
 //     return (
@@ -236,8 +272,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { CreditCard, Truck, Clock } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import type { CheckoutData } from "@/lib/orders-data"
 import { message } from "antd"
+import { useAuth } from "@/contexts/auth-context"
+import { CheckoutData } from "@/lib/orders-data"
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -245,6 +282,7 @@ export default function PaymentPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null)
   const [orderId, setOrderId] = useState<string>("")
+  const { user } = useAuth()
 
   useEffect(() => {
     const savedCheckoutData = localStorage.getItem("checkoutData")
@@ -268,20 +306,22 @@ export default function PaymentPage() {
     setIsProcessing(true)
 
     try {
+      // Chờ trong 2 giây để mô phỏng quá trình xử lý
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
+      // Tạo đối tượng items để gửi lên BE
       const orderItems = checkoutData.items.map((item) => ({
         productId: item.product.id,
         title: item.product.title,
-        author: item.product.author,
         price: item.product.price,
         quantity: item.quantity,
         image: item.product.coverImage,
       }))
 
-      // Save order to localStorage
-      const order = {
-        id: orderId,
+      // Dữ liệu gửi lên BE
+      const orderData = {
+        orderCode: orderId,
+        user: user?.id,
         items: orderItems,
         shippingAddress: checkoutData.shippingAddress,
         subtotal: checkoutData.subtotal,
@@ -289,23 +329,39 @@ export default function PaymentPage() {
         tax: checkoutData.tax,
         total: checkoutData.total,
         paymentMethod: checkoutData.paymentMethod,
-        status: checkoutData.paymentMethod === "cod" ? "pending" : "confirmed",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
       }
 
-      const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]")
-      existingOrders.push(order)
-      localStorage.setItem("orders", JSON.stringify(existingOrders))
+      // Gửi yêu cầu POST lên BE (giả sử endpoint là /api/order)
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      })
 
-      // Clear cart and checkout data
-      clearCart()
-      localStorage.removeItem("checkoutData")
-      localStorage.removeItem("selectedDeliveryAddress")
+      const result = await response.json()
 
-      message.success("Thanh toán thành công!")
-      router.push(`/order-confirmation?orderId=${orderId}`)
+      if (result.success) {
+        message.success("Thanh toán thành công!")
+
+        // Lưu đơn hàng vào localStorage
+        const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]")
+        existingOrders.push(result.order) // Đảm bảo BE trả về đơn hàng đã được tạo
+        localStorage.setItem("orders", JSON.stringify(existingOrders))
+
+        // Xóa giỏ hàng và dữ liệu thanh toán
+        clearCart()
+        localStorage.removeItem("checkoutData")
+        localStorage.removeItem("selectedDeliveryAddress")
+
+        // Chuyển hướng tới trang xác nhận đơn hàng
+        router.push(`/order-confirmation?orderId=${orderId}`)
+      } else {
+        message.error(result.message || "Không thể tạo đơn hàng. Vui lòng thử lại!")
+      }
     } catch (error) {
+      console.error("Lỗi thanh toán:", error)
       message.error("Có lỗi xảy ra. Vui lòng thử lại!")
     } finally {
       setIsProcessing(false)
@@ -326,7 +382,6 @@ export default function PaymentPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Xác nhận thanh toán</h1>
         <p className="text-gray-600 mt-2">Mã đơn hàng: {orderId}</p>
