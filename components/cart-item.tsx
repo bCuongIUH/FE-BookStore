@@ -47,6 +47,7 @@ export default function CartItemComponent({ item }: CartItemComponentProps) {
         {/* Product Info */}
         <div className="flex-1">
           <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">{item.product.title}</h3>
+          <p className="text-sm text-gray-600">Tập: {item.product.volume || "Không có"}</p>
           <p className="text-blue-600 font-bold mb-3">{item.product.price.toLocaleString("vi-VN")}₫</p>
 
           {/* Quantity Controls */}

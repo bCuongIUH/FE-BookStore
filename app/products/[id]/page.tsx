@@ -62,13 +62,27 @@ export default function ProductDetailPage() {
     }
   }, [productId])
 
-  const handleAddToCart = () => {
-    if (product) {
-      addToCart(product, quantity)
-      message.success(`Đã thêm ${quantity} cuốn "${product.title}" vào giỏ hàng!`)
-      setQuantity(1)
-    }
+const handleAddToCart = () => {
+  if (!product) return
+
+  if (quantity > product.stock) {
+    return message.error("Số lượng vượt quá hàng tồn kho!")
   }
+
+  addToCart(
+    {
+      id: product._id,
+      title: product.title,
+      price: product.price,
+      coverImage: product.coverImage,
+      volume: product.volume || ""
+    },
+    quantity
+  )
+
+  message.success(`Đã thêm ${quantity} cuốn "${product.title}" vào giỏ hàng!`)
+  setQuantity(1)
+}
 
   const handleQuantityChange = (value: number) => {
     if (product) {

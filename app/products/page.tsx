@@ -41,22 +41,7 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12
 
-  // const fetchBooks = async () => {
-  //   try {
-  //     setLoading(true)
-  //     const res = await axios.get("http://localhost:5000/api/books")
-  //     if (res.data && res.data.success) {
-  //       setProducts(res.data.data)
-  //     } else {
-  //       setProducts(res.data.data || res.data || [])
-  //     }
-  //   } catch (error) {
-  //     console.error("Lỗi khi tải sách:", error)
-  //     message.error("Không thể tải danh sách sách.")
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
+
 const fetchBooks = async () => {
   try {
     setLoading(true);

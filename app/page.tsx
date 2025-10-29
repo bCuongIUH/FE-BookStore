@@ -23,6 +23,8 @@ interface Product {
   price: number
   stock: number
   coverImage: string
+  volume?: string
+ 
 }
 
 export default function HomePage() {
@@ -69,9 +71,11 @@ export default function HomePage() {
     addToCart(
       {
         id: book._id,
-        name: book.title,
+        title: book.title,
         price: book.price,
-        image: book.coverImage,
+        coverImage: book.coverImage,
+        volume: book.volume || ""
+        
       },
       1
     )
@@ -146,6 +150,7 @@ export default function HomePage() {
 
                 <CardContent className="space-y-3 p-4">
                   <h3 className="font-semibold group-hover:text-blue-600">{book.title}</h3>
+                  <p className="text-sm text-gray-600">Tập: {book.volume || "Không có"}</p>
                   <p className="text-sm text-gray-600">{book.author}</p>
 
                   <div className="flex items-center gap-1 text-sm text-gray-500">

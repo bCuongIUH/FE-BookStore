@@ -46,7 +46,7 @@ export default function PaymentPage() {
 
       // Tạo đối tượng items để gửi lên BE
       const orderItems = checkoutData.items.map((item) => ({
-        productId: item.product._id,
+        productId: item.product.id,
         title: item.product.title,
         price: item.product.price,
         quantity: item.quantity,
@@ -74,7 +74,9 @@ export default function PaymentPage() {
         },
         body: JSON.stringify(orderData),
       })
-
+console.log('====================================');
+console.log(orderData);
+console.log('====================================');
       const result = await response.json()
 
       if (result.success) {

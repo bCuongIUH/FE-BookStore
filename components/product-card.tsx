@@ -36,10 +36,21 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart()
   const isOutOfStock = product.stock === 0
 
-  const handleAddToCart = () => {
-    addToCart(product, 1)
-    message.success(`Đã thêm "${product.title}" vào giỏ hàng!`)
-  }
+const handleAddToCart = () => {
+  addToCart(
+    {
+      id: product._id,
+      title: product.title,
+      price: product.price,
+      coverImage: product.coverImage,
+      volume: product.volume || ""
+    },
+    1
+  )
+
+  message.success(`Đã thêm "${product.title}" vào giỏ hàng!`)
+}
+
 
   return (
     <Card className="flex flex-col h-full hover:shadow-lg transition-shadow">
@@ -72,6 +83,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="flex justify-between">
             <span className="text-gray-600">Số trang:</span>
             <span className="font-medium">{product.pages}</span>
+          </div>
+           <div className="flex justify-between">
+            <span className="text-gray-600">Tập:</span>
+            <span className="font-medium">{product.volume || "Không có"}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Kho:</span>

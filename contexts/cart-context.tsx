@@ -198,9 +198,10 @@ import { createContext, useContext, useState, useCallback } from "react"
 export interface CartItem {
   product: {
     id: string
-    name: string
+    title: string
     price: number
-    image?: string
+    coverImage: string
+    volume: string
   }
   quantity: number
 }

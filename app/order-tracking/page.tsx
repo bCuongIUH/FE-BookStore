@@ -27,11 +27,14 @@ const handleSearch = async (number?: string) => {
   if (!code.trim()) return message.error("Vui lòng nhập mã đơn hàng!")
 
   setIsSearching(true)
+console.log('====================================');
+console.log(order);
+console.log('====================================');
 
   const foundOrder = getOrderByNumber(code.trim())
   setOrder(foundOrder || null)
 
-  foundOrder ? message.success("Tìm thấy đơn hàng!") : message.error("Không tìm thấy đơn hàng!")
+  foundOrder ? message.success("Tìm thấy đơn hàng!") :
 
   setIsSearching(false)
 }
@@ -109,7 +112,7 @@ useEffect(() => {
       { key: "completed", label: "Hoàn thành", description: "Giao dịch đã hoàn tất" },
     ]
 
-    const statusOrder = ["pending", "confirmed", "processing", "shipping", "delivered", "completed"]
+    const statusOrder = ["pending", "processing", "shipping", "delivered", "cancelled","yeu_cau_hoan_tra"]
     const currentIndex = statusOrder.indexOf(currentStatus)
 
     return steps.map((step, index) => ({
@@ -143,7 +146,7 @@ useEffect(() => {
               </Label>
               <Input
                 id="orderNumber"
-                placeholder="Nhập mã đơn hàng (ví dụ: BK123456ABC)"
+                placeholder="Nhập mã đơn hàng (ví dụ: ORD-123456ABC)"
                 value={orderNumber}
                 onChange={(e) => setOrderNumber(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSearch()}
