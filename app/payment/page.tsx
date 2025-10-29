@@ -46,7 +46,7 @@ export default function PaymentPage() {
 
       // Tạo đối tượng items để gửi lên BE
       const orderItems = checkoutData.items.map((item) => ({
-        productId: item.product.id,
+        productId: item.product._id,
         title: item.product.title,
         price: item.product.price,
         quantity: item.quantity,
