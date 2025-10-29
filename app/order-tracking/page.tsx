@@ -9,38 +9,40 @@ import { Badge } from "@/components/ui/badge"
 import { Search, Package, Truck, CheckCircle, Clock, XCircle, RotateCcw, Award } from "lucide-react"
 import { getOrderByNumber, createSampleOrders, type Order } from "@/lib/orders-data"
 import { message } from "antd"
+import { useSearchParams } from "next/navigation"
 
 export default function OrderTrackingPage() {
-  const [orderNumber, setOrderNumber] = useState("")
+ 
   const [order, setOrder] = useState<Order | null>(null)
   const [isSearching, setIsSearching] = useState(false)
-
+const searchParams = useSearchParams()
+const initialOrderNumber = searchParams.get("orderNumber") || ""
+ const [orderNumber, setOrderNumber] = useState(initialOrderNumber)
   useEffect(() => {
     createSampleOrders()
   }, [])
 
-  const handleSearch = async () => {
-    if (!orderNumber.trim()) {
-      message.error("Vui lòng nhập mã đơn hàng!")
-      return
-    }
+const handleSearch = async (number?: string) => {
+  const code = number || orderNumber
+  if (!code.trim()) return message.error("Vui lòng nhập mã đơn hàng!")
 
-    setIsSearching(true)
+  setIsSearching(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+  const foundOrder = getOrderByNumber(code.trim())
+  setOrder(foundOrder || null)
 
-    const foundOrder = getOrderByNumber(orderNumber.trim())
-    if (foundOrder) {
-      setOrder(foundOrder)
-      message.success("Tìm thấy đơn hàng!")
-    } else {
-      setOrder(null)
-      message.error("Không tìm thấy đơn hàng với mã này!")
-    }
+  foundOrder ? message.success("Tìm thấy đơn hàng!") : message.error("Không tìm thấy đơn hàng!")
 
-    setIsSearching(false)
+  setIsSearching(false)
+}
+
+
+useEffect(() => {
+  if (initialOrderNumber.trim()) {
+    setOrderNumber(initialOrderNumber)
+    handleSearch(initialOrderNumber)
   }
+}, [initialOrderNumber])
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -123,7 +125,6 @@ export default function OrderTrackingPage() {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Theo dõi đơn hàng</h1>
         <p className="text-gray-600">Nhập mã đơn hàng để kiểm tra trạng thái</p>
-        <p className="text-sm text-blue-600 mt-2">Thử với mã: BK123456ABC hoặc BK789012DEF</p>
       </div>
 
       {/* Search Form */}
@@ -148,9 +149,14 @@ export default function OrderTrackingPage() {
                 onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
-            <Button onClick={handleSearch} disabled={isSearching} className="px-8">
+            <Button
+              onClick={() => handleSearch()}
+              disabled={isSearching}
+              className="px-8"
+            >
               {isSearching ? "Đang tìm..." : "Tìm kiếm"}
             </Button>
+
           </div>
         </CardContent>
       </Card>
@@ -384,8 +390,8 @@ export default function OrderTrackingPage() {
             Nếu bạn có bất kỳ câu hỏi nào về đơn hàng, vui lòng liên hệ với chúng tôi:
           </p>
           <div className="space-y-1 text-sm text-gray-600">
-            <p>📞 Hotline: (028) 1234 5678</p>
-            <p>📧 Email: support@bookstore.vn</p>
+            <p>📞 Hotline: (076) 848 6006</p>
+            <p>📧 Email: baokhanh@gmail.com</p>
             <p>🕒 Thời gian hỗ trợ: 8:00 - 22:00 (Thứ 2 - Chủ nhật)</p>
           </div>
         </CardContent>

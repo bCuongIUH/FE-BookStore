@@ -28,9 +28,7 @@ export default function Header() {
     logout()
     setIsMenuOpen(false)
   }
-console.log('====================================');
-console.log(user);
-console.log('====================================');
+
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,14 +65,14 @@ console.log('====================================');
 
           {/* Search Bar */}
           <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
-            <div className="relative w-full">
+            {/* <div className="relative w-full">
               <Input
                 type="text"
                 placeholder="Tìm kiếm sách..."
                 className="pl-10 pr-4 py-2 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            </div>
+            </div> */}
           </div>
 
           {/* Right Actions */}
