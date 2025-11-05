@@ -281,7 +281,7 @@ export default function CheckoutPage() {
                 </div>
               </RadioGroup>
 
-              {paymentMethod === "bank_transfer" && (
+              {/* {paymentMethod === "bank_transfer" && (
                 <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <h4 className="font-medium text-blue-900 mb-2">Thông tin chuyển khoản:</h4>
                   <div className="text-sm text-blue-800 space-y-1">
@@ -302,7 +302,7 @@ export default function CheckoutPage() {
                     * Đơn hàng sẽ được xử lý sau khi chúng tôi xác nhận thanh toán
                   </p>
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
         </div>
