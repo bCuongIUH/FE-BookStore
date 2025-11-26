@@ -126,7 +126,7 @@ const handleAddToCart = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Image */}
         <div className="flex items-center justify-center">
-          <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden">
+          <div className="relative w-full h-full bg-gray-100 rounded-lg overflow-hidden">
             {product.coverImage ? (
               <Image src={product.coverImage || "/placeholder.svg"} alt={product.title} fill className="object-cover" />
             ) : (
@@ -159,7 +159,7 @@ const handleAddToCart = () => {
                 <span className="font-medium">{product.category?.name || "Khác"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Mã ISSN:</span>
+                <span className="text-gray-600">Mã ISBN:</span>
                 <span className="font-medium">{product.ISSN}</span>
               </div>
               <div className="flex justify-between">

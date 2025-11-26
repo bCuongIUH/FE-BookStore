@@ -43,21 +43,21 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium">
+            <Link href="/" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium p-2">
               Trang chủ
             </Link>
             <Link
               href="/products"
-              className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
+              className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium p-2"
             >
               Sản phẩm
             </Link>
-            <Link href="/blog" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium">
+            <Link href="/blog" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium p-2">
               Blog
             </Link>
             <Link
               href="/about"
-              className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
+              className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium p-2"
             >
               Giới thiệu
             </Link>
