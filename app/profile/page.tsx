@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -11,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { User, Package, Clock, CheckCircle, RotateCcw, Award, Eye, Lock, X } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import axios from "axios"
-import { message } from "antd"
+import { message, Modal } from "antd"
+
 
 interface OrderItem {
   productId: string
@@ -36,13 +36,14 @@ export default function ProfilePage() {
   const { user, isAuthenticated } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [cancelingOrderId, setCancelingOrderId] = useState<string | null>(null)
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   })
   const [isChangingPassword, setIsChangingPassword] = useState(false)
-
+const { confirm } = Modal;
   const fetchUserOrders = async () => {
     if (!user?.id) return
     try {
@@ -64,7 +65,6 @@ export default function ProfilePage() {
       router.push("/login")
       return
     }
-
     fetchUserOrders()
   }, [isAuthenticated, user, router])
 
@@ -89,6 +89,7 @@ export default function ProfilePage() {
       yeu_cau_hoan_tra: { text: "Đã gửi yêu cầu trả hàng", color: "bg-red-500", icon: Clock },
       paid: { text: "Hoàn hàng", color: "bg-yellow-500", icon: Clock },
       tuchoi: { text: "Đơn hàng bị huỷ", color: "bg-red-500", icon: X },
+      huydonhang: { text: "Đã huỷ đơn", color: "bg-yellow-400", icon: RotateCcw },
     }
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending
     const IconComponent = config.icon
@@ -106,15 +107,54 @@ export default function ProfilePage() {
       delivered: orders.filter((o) => o.status === "delivered").length,
       pending: orders.filter((o) => ["pending", "confirmed", "processing", "shipping"].includes(o.status)).length,
       paid: orders.filter((o) => o.status === "paid").length,
-      tuchoi : orders.filter((o) => o.status === "tuchoi").length,
+      tuchoi: orders.filter((o) => o.status === "tuchoi").length,
       totalItems: getTotalPurchasedItems(),
     }
     return stats
   }
+//huỷ đơn
+const handleCancelOrder = async (orderId: string) => {
+  if (!user?.id) {
+    message.error("Không tìm thấy thông tin người dùng!")
+    return
+  }
+
+  confirm({
+    title: "Xác nhận hủy đơn hàng",
+    content: "Bạn có chắc muốn hủy đơn hàng này không?",
+    okText: "Đồng ý",
+    cancelText: "Hủy",
+    onOk: async () => {
+      setCancelingOrderId(orderId)
+      try {
+        const res = await axios.put(
+          `http://localhost:5000/api/orders/status/cancelOrder/${orderId}`,
+          {
+            userId: user.id,
+            userName: user.name,
+          }
+        )
+
+        if (res.data.success) {
+          message.success("Hủy đơn hàng thành công!")
+          setOrders(orders.map((order) =>
+            order._id === orderId ? { ...order, status: "huydonhang" } : order
+          ))
+        } else {
+          message.error(res.data.message || "Hủy đơn hàng thất bại!")
+        }
+      } catch (error: any) {
+        console.error("Lỗi khi hủy đơn hàng:", error)
+        message.error(error.response?.data?.message || "Hủy đơn hàng thất bại!")
+      } finally {
+        setCancelingOrderId(null)
+      }
+    },
+  })
+}
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       message.error("Vui lòng điền đầy đủ các trường!")
       return
@@ -137,7 +177,6 @@ export default function ProfilePage() {
         newPassword: passwordData.newPassword,
         userId: user?.id,
       })
-
       if (res.data.success) {
         message.success("Đổi mật khẩu thành công!")
         setPasswordData({
@@ -157,6 +196,7 @@ export default function ProfilePage() {
   }
 
   if (!isAuthenticated || !user) return null
+
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -274,7 +314,6 @@ export default function ProfilePage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Mật khẩu mới</label>
                   <input
@@ -285,7 +324,6 @@ export default function ProfilePage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Xác nhận mật khẩu mới</label>
                   <input
@@ -296,7 +334,6 @@ export default function ProfilePage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                   />
                 </div>
-
                 <Button type="submit" disabled={isChangingPassword} className="w-full bg-blue-600 hover:bg-blue-700">
                   {isChangingPassword ? "Đang xử lý..." : "Đổi mật khẩu"}
                 </Button>
@@ -339,7 +376,6 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       </div>
-
                       <div className="flex items-center space-x-4 mb-3">
                         <div className="flex -space-x-2">
                           {(order.items || []).slice(0, 3).map((item, index) => (
@@ -363,8 +399,17 @@ export default function ProfilePage() {
                           </p>
                         </div>
                       </div>
-
                       <div className="flex justify-end space-x-2">
+                        {order.status === "pending" && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleCancelOrder(order._id)}
+                            disabled={cancelingOrderId === order._id}
+                          >
+                            {cancelingOrderId === order._id ? "Đang hủy..." : "Hủy đơn hàng"}
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"

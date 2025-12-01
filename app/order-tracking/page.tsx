@@ -90,6 +90,7 @@ export default function OrderTrackingPage() {
       yeu_cau_hoan_tra: { text: "Yêu cầu hoàn trả", color: "bg-red-500" },
       paid: { text: "Hoàn trả", color: "bg-green-500" },
       tuchoi: { text: "Đơn hàng bị huỷ", color: "bg-red-500" },
+      huydonhang: { text: "Đã huỷ đơn", color: "bg-yellow-400",},
     }
     const config = statusConfig[status] || statusConfig.pending
     return <Badge className={`${config.color} hover:${config.color}`}>{config.text}</Badge>
