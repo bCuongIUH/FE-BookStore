@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, Package, Clock, CheckCircle, RotateCcw, Award, Eye, Lock } from "lucide-react"
+import { User, Package, Clock, CheckCircle, RotateCcw, Award, Eye, Lock, X } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import axios from "axios"
 import { message } from "antd"
@@ -88,6 +88,7 @@ export default function ProfilePage() {
       cancelled: { text: "Đã hủy", color: "bg-red-500", icon: Clock },
       yeu_cau_hoan_tra: { text: "Đã gửi yêu cầu trả hàng", color: "bg-red-500", icon: Clock },
       paid: { text: "Hoàn hàng", color: "bg-yellow-500", icon: Clock },
+      tuchoi: { text: "Đơn hàng bị huỷ", color: "bg-red-500", icon: X },
     }
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending
     const IconComponent = config.icon
@@ -105,6 +106,7 @@ export default function ProfilePage() {
       delivered: orders.filter((o) => o.status === "delivered").length,
       pending: orders.filter((o) => ["pending", "confirmed", "processing", "shipping"].includes(o.status)).length,
       paid: orders.filter((o) => o.status === "paid").length,
+      tuchoi : orders.filter((o) => o.status === "tuchoi").length,
       totalItems: getTotalPurchasedItems(),
     }
     return stats
