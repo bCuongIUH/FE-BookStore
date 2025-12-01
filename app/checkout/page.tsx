@@ -92,6 +92,7 @@ export default function CheckoutPage() {
         tax: getTax(),
         total: getFinalTotal(),
         paymentMethod,
+        
       }
 
       localStorage.setItem("checkoutData", JSON.stringify(checkoutData))
