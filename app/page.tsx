@@ -135,8 +135,6 @@ export default function HomePage() {
     </div>
   </div>
 </section>
-
-
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {!loading && categories.length > 0 && <CategoryBanner categories={categories} products={products} />}
       </section>

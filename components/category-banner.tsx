@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -61,7 +59,7 @@ export default function CategoryBanner({ categories, products }: CategoryBannerP
   const currentProduct = categoryProducts[currentImageIndex] || categoryProducts[0]
 
   return (
-    <section className="bg-gradient-to-br from-gray-500 via-gray-500 to-gray-200 py-16 px-4 rounded-2xl overflow-hidden">
+    <section className="bg-gradient-to-br from-gray-400 via-gray-500 to-gray-200 py-16 px-4 rounded-2xl overflow-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Category Navigation */}
         <div className="flex items-center justify-between mb-12">
@@ -174,7 +172,8 @@ export default function CategoryBanner({ categories, products }: CategoryBannerP
                   className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-semibold"
                   asChild
                 >
-                  <Link href={`/products?category=${categories[activeCategory]}`}>Xem chi tiết</Link>
+                  {/* Update link to product detail page */}
+                  <Link href={`/products/${currentProduct._id}`}>Xem chi tiết</Link>
                 </Button>
                 <Button
                   size="lg"
@@ -208,4 +207,3 @@ export default function CategoryBanner({ categories, products }: CategoryBannerP
     </section>
   )
 }
-
