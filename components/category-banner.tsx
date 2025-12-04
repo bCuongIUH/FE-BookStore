@@ -61,13 +61,13 @@ export default function CategoryBanner({ categories, products }: CategoryBannerP
   const currentProduct = categoryProducts[currentImageIndex] || categoryProducts[0]
 
   return (
-    <section className="bg-gradient-to-br from-orange-50 via-pink-50 to-peach-50 py-16 px-4 rounded-2xl overflow-hidden">
+    <section className="bg-gradient-to-br from-gray-500 via-gray-500 to-gray-200 py-16 px-4 rounded-2xl overflow-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Category Navigation */}
         <div className="flex items-center justify-between mb-12">
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Khám phá danh mục</h2>
-            <p className="text-gray-600">Duyệt qua các bộ sưu tập sách yêu thích</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Khám phá danh mục</h2>
+            <p className="text-gray-300">Duyệt qua các bộ sưu tập sách yêu thích</p>
           </div>
           <div className="hidden md:flex items-center gap-3">
             <Button
@@ -76,7 +76,7 @@ export default function CategoryBanner({ categories, products }: CategoryBannerP
               onClick={handlePrevCategory}
               className="rounded-full border-2 border-orange-300 hover:bg-orange-100 bg-transparent"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5 text-white" />
             </Button>
             <Button
               variant="outline"
@@ -84,7 +84,7 @@ export default function CategoryBanner({ categories, products }: CategoryBannerP
               onClick={handleNextCategory}
               className="rounded-full border-2 border-orange-300 hover:bg-orange-100 bg-transparent"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5 text-white" />
             </Button>
           </div>
         </div>
@@ -151,8 +151,8 @@ export default function CategoryBanner({ categories, products }: CategoryBannerP
                 <span className="inline-block px-4 py-2 bg-orange-200 text-orange-700 rounded-full text-sm font-semibold mb-3">
                   {categories[activeCategory]}
                 </span>
-                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{currentProduct.title}</h3>
-                <p className="text-gray-600 text-lg">{currentProduct.author}</p>
+                <h3 className="text-3xl md:text-4xl font-bold text-white mb-2">{currentProduct.title}</h3>
+                <p className="text-gray-300 text-lg">{currentProduct.author}</p>
               </div>
 
               <div className="space-y-2">
@@ -208,3 +208,4 @@ export default function CategoryBanner({ categories, products }: CategoryBannerP
     </section>
   )
 }
+

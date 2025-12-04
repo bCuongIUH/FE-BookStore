@@ -27,6 +27,7 @@ export default function Header() {
   const handleLogout = () => {
     logout()
     setIsMenuOpen(false)
+    window.location.reload() 
   }
 
   return (

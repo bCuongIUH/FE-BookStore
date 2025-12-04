@@ -46,7 +46,7 @@ export default function HomePage() {
       if (res.data?.success) {
         const books: Product[] = res.data.data || []
         setProducts(books)
-        setFeaturedBooks(books.slice(0, 4))
+        setFeaturedBooks(books.slice(0, 10))
 
         const uniqueCategories = Array.from(new Set(books.map((b) => b?.category?.name ?? "Khác")))
         setCategories(["Tất cả", ...uniqueCategories])
@@ -148,7 +148,7 @@ export default function HomePage() {
         {loading ? (
           <p className="text-center text-gray-500">Đang tải sản phẩm...</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {featuredBooks.map((book) => (
               <Card key={book._id} className="group hover:shadow-xl transition cursor-pointer">
                 <CardHeader className="p-0">
