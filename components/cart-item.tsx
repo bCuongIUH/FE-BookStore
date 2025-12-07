@@ -14,6 +14,7 @@ interface CartItemComponentProps {
 export default function CartItemComponent({ item }: CartItemComponentProps) {
   const { updateQuantity, removeFromCart } = useCart()
 
+  // Handle quantity change from the input field
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity <= 0) {
       handleRemove()
@@ -25,6 +26,14 @@ export default function CartItemComponent({ item }: CartItemComponentProps) {
   const handleRemove = () => {
     removeFromCart(item.product.id)
     message.success("Đã xóa sản phẩm khỏi giỏ hàng!")
+  }
+
+  // Handle input change for quantity
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10)
+    if (!isNaN(value)) {
+      handleQuantityChange(value)
+    }
   }
 
   return (
@@ -60,7 +69,16 @@ export default function CartItemComponent({ item }: CartItemComponentProps) {
             >
               <Minus className="w-4 h-4" />
             </Button>
-            <span className="w-8 text-center font-medium">{item.quantity}</span>
+            
+            {/* Input for quantity */}
+            <input
+              type="number"
+              value={item.quantity}
+              onChange={handleInputChange}
+              min="1"
+              className="w-12 text-center font-medium border rounded-md p-1"
+            />
+            
             <Button
               variant="outline"
               size="sm"
